@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class Player : MonoBehaviour
 
 {
@@ -8,34 +9,49 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _horizontalInput;
 
-    private Rigidbody2D _rigidbody2D;
+    [SerializeField]
+    private Transform customSpawnPoint;
+
+    [SerializeField]
+    private string spikeTag = "Spike";
+
+    private Rigidbody2D rb;
+    private Vector3 respawnPosition;
+    private float respawnFreeze = 0f;
+    private float respawnDelay = 1f;
 
     private void Awake()
     {
-        _rigidbody2D = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
+        respawnPosition = customSpawnPoint ? customSpawnPoint.position : transform.position;
     }
 
     void Update()
     {
+        if (respawnFreeze > 0f) 
+        {
+            respawnFreeze -= Time.deltaTime;
+            return; 
+        }
+
         _horizontalInput = Input.GetAxis("Horizontal");
         transform.Translate(new Vector3(_horizontalInput, 0, 0) * _speed * Time.deltaTime);
+    }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            FlipGravity();
+    private void OnCollisionEnter2D(Collision2D collision2D)
+    {
+
+        if (collision2D.collider.CompareTag(spikeTag))
+        {        
+            Debug.Log("spike respawn");
+            Respawn();
         }
     }
 
-    private void FlipGravity()
+    private void Respawn()
     {
-        //Debug.log("Flip!");
-        _rigidbody2D.gravityScale *= -1f;
-
-        Vector3 scale = transform.localScale;
-        scale.y *= -1f;
-        transform.localScale = scale;
+        transform.position = respawnPosition;
+        respawnFreeze = respawnDelay;
     }
-
-
 
 }
