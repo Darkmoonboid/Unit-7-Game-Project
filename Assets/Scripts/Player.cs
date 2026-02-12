@@ -52,6 +52,10 @@ public class Player : MonoBehaviour
     {
         transform.position = respawnPosition;
         respawnFreeze = respawnDelay;
+        if (Physics2D.gravity == -1)
+        {
+            Physics2D.gravity = 1f;
+        }
     }
 
 }
